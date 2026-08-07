@@ -48,7 +48,7 @@ class AreaSelector:
         fill_color = self.transparent_color if self.has_transparent_color else "gray40"
         self.rect = self.canvas.create_rectangle(
             self.start_x, self.start_y, self.start_x, self.start_y,
-            outline="#00FF00", width=2, fill=fill_color
+            outline="#4ADE80", width=2, fill=fill_color
         )
 
     def _on_drag(self, event):
@@ -83,6 +83,13 @@ class UIOverlay:
         self.config = config
         self.root = tk.Tk()
 
+        self.bg_main = "#121212"
+        self.bg_bar = "#1E1E1E"
+        self.bg_hover = "#2C2C2C"
+        self.fg_accent = "#4ADE80"
+        self.fg_text = "#E5E7EB"
+        self.fg_danger = "#F87171"
+
         self._drag_x = 0
         self._drag_y = 0
         self._resize_x = 0
@@ -98,9 +105,12 @@ class UIOverlay:
 
     def _setup_window(self):
         self.root.attributes('-topmost', True)
-        self.root.attributes('-alpha', 0.8)
+        self.root.attributes('-alpha', 0.85)
         self.root.overrideredirect(True)
-        self.root.geometry("600x150+100+50")
+        self.root.geometry("650x180+100+50")
+        self.root.configure(bg=self.bg_main)
+        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
         self._force_top()
 
     def _get_lang_name_by_code(self, code: str) -> str:
@@ -146,7 +156,7 @@ class UIOverlay:
         new_height = max(100, self._start_height + delta_y)
         self.root.geometry(f"{new_width}x{new_height}")
 
-    def _start_area_selection(self):
+    def _start_area_selection(self, event=None):
         self.processor.is_paused = True
         self.update_text("Select area on screen...")
         AreaSelector(self.root, self.config, self._on_area_selected)
@@ -156,22 +166,39 @@ class UIOverlay:
         self.update_text("Waiting for subs...")
         self.processor.is_paused = False
 
-    def _quit(self):
+    def _quit(self, event=None):
         self.processor.stop()
         self.root.destroy()
         sys.exit(0)
 
+    def _create_hover_btn(self, parent, text, fg_color, command):
+        lbl = tk.Label(
+            parent, text=text, bg=self.bg_bar, fg=fg_color,
+            font=("Arial", 16), padx=10, cursor="hand2"
+        )
+        lbl.bind("<Button-1>", command)
+        lbl.bind("<Enter>", lambda e: lbl.config(bg=self.bg_hover))
+        lbl.bind("<Leave>", lambda e: lbl.config(bg=self.bg_bar))
+        return lbl
+
     def _setup_widgets(self):
-        control_frame = tk.Frame(self.root, bg="black", cursor="fleur")
-        control_frame.pack(fill="x", padx=5, pady=5)
+        control_frame = tk.Frame(self.root, bg=self.bg_bar, cursor="fleur", height=40)
+        control_frame.grid(row=0, column=0, sticky="ew")
+        control_frame.pack_propagate(False)
         self._make_draggable(control_frame)
 
-        select_btn = tk.Button(
-            control_frame, text="✂", bg="black", fg="#00FF00", bd=0,
-            font=("Arial", 14), command=self._start_area_selection,
-            cursor="hand2", activebackground="#333333", activeforeground="#00FF00"
-        )
-        select_btn.pack(side="left", padx=(5, 10))
+        select_btn = self._create_hover_btn(control_frame, "✂", self.fg_accent, self._start_area_selection)
+        select_btn.pack(side="left")
+
+        exit_btn = self._create_hover_btn(control_frame, "✖", self.fg_danger, self._quit)
+        exit_btn.pack(side="right")
+
+        menus_frame = tk.Frame(control_frame, bg=self.bg_bar)
+        menus_frame.pack(side="left", fill="both", expand=True)
+        self._make_draggable(menus_frame)
+
+        menus_container = tk.Frame(menus_frame, bg=self.bg_bar)
+        menus_container.pack(expand=True)
 
         self.source_var = tk.StringVar(value=self._get_lang_name_by_code(self.config.source_lang))
         self.target_var = tk.StringVar(value=self._get_lang_name_by_code(self.config.target_lang))
@@ -179,38 +206,35 @@ class UIOverlay:
         self.source_var.trace_add("write", self._on_source_change)
         self.target_var.trace_add("write", self._on_target_change)
 
-        source_menu = tk.OptionMenu(control_frame, self.source_var, *LANGUAGES.keys())
-        target_menu = tk.OptionMenu(control_frame, self.target_var, *LANGUAGES.keys())
+        menu_opts = {
+            "bg": self.bg_bar, "fg": self.fg_text, "highlightthickness": 0, "bd": 0,
+            "activebackground": self.bg_hover, "activeforeground": self.fg_text,
+            "font": ("Arial", 12), "indicatoron": 0
+        }
+
+        source_menu = tk.OptionMenu(menus_container, self.source_var, *LANGUAGES.keys())
+        target_menu = tk.OptionMenu(menus_container, self.target_var, *LANGUAGES.keys())
 
         for menu in (source_menu, target_menu):
-            menu.config(
-                bg="black", fg="#00FF00", highlightthickness=0, bd=0,
-                activebackground="#333333", activeforeground="#00FF00", font=("Arial", 12)
-            )
-            menu["menu"].config(bg="black", fg="#00FF00", font=("Arial", 12))
+            menu.config(**menu_opts)
+            menu["menu"].config(bg=self.bg_main, fg=self.fg_text, font=("Arial", 12), bd=0,
+                                activebackground=self.bg_hover)
 
-        source_menu.pack(side="left")
+        source_menu.pack(side="left", padx=5)
 
-        arrow_label = tk.Label(control_frame, text=" ➔ ", bg="black", fg="#00FF00", font=("Arial", 12, "bold"))
-        arrow_label.pack(side="left")
+        arrow_label = tk.Label(menus_container, text="➔", bg=self.bg_bar, fg=self.fg_accent, font=("Arial", 14))
+        arrow_label.pack(side="left", padx=10)
         self._make_draggable(arrow_label)
 
-        target_menu.pack(side="left")
-
-        exit_btn = tk.Button(
-            control_frame, text="✖", bg="black", fg="red", bd=0,
-            font=("Arial", 14), command=self._quit,
-            cursor="hand2", activebackground="#333333", activeforeground="red"
-        )
-        exit_btn.pack(side="right", padx=(10, 5))
+        target_menu.pack(side="left", padx=5)
 
         self.text_widget = tk.Text(
-            self.root, fg="#00FF00", bg="black", font=("Arial", 20, "bold"),
-            padx=15, pady=10, bd=0, highlightthickness=0, wrap="word"
+            self.root, fg=self.fg_text, bg=self.bg_main, font=("Arial", 18, "bold"),
+            padx=15, pady=10, bd=0, highlightthickness=0, wrap="word", spacing1=5, spacing3=5
         )
-        self.text_widget.pack(fill="both", expand=True)
+        self.text_widget.grid(row=1, column=0, sticky="nsew")
 
-        self.grip = tk.Label(self.root, text="⇲", bg="black", fg="#00FF00", font=("Arial", 14),
+        self.grip = tk.Label(self.root, text="⇲", bg=self.bg_main, fg=self.fg_accent, font=("Arial", 14),
                              cursor="bottom_right_corner")
         self.grip.place(relx=1.0, rely=1.0, anchor="se")
         self.grip.bind("<ButtonPress-1>", self._start_resize)
