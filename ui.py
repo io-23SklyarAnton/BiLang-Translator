@@ -234,8 +234,14 @@ class UIOverlay:
         )
         self.text_widget.grid(row=1, column=0, sticky="nsew")
 
-        self.grip = tk.Label(self.root, text="⇲", bg=self.bg_main, fg=self.fg_accent, font=("Arial", 14),
-                             cursor="bottom_right_corner")
+        resize_cursor = "size_nw_se" if sys.platform == "win32" else "bottom_right_corner"
+        self.grip = tk.Label(
+            self.root,
+            text="⇲", bg=self.bg_main,
+            fg=self.fg_accent,
+            font=("Arial", 14),
+            cursor=resize_cursor,
+        )
         self.grip.place(relx=1.0, rely=1.0, anchor="se")
         self.grip.bind("<ButtonPress-1>", self._start_resize)
         self.grip.bind("<B1-Motion>", self._on_resize_motion)

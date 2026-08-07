@@ -1,3 +1,5 @@
+import os
+import sys
 import cv2
 import mss
 import numpy as np
@@ -7,6 +9,11 @@ import logging
 from config import AppConfig
 
 logger = logging.getLogger(__name__)
+
+if sys.platform == "win32":
+    default_tess_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if os.path.exists(default_tess_path):
+        pytesseract.pytesseract.tesseract_cmd = default_tess_path
 
 
 class ScreenCapturer:

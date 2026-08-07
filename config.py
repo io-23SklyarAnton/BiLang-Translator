@@ -4,7 +4,7 @@ LANGUAGES = {
     "🇬🇧 English": {"source": "en", "target": "en", "tess": "eng"},
     "🇩🇪 Deutsch": {"source": "de", "target": "de", "tess": "deu"},
     "🇺🇦 Українська": {"source": "uk", "target": "uk", "tess": "ukr"},
-    "🇷🇺 Русский": {"source": "ru", "target": "ru", "tess": "rus"},
+    "🏴 Русский": {"source": "ru", "target": "ru", "tess": "rus"},
     "🇪🇸 Español": {"source": "es", "target": "es", "tess": "spa"},
     "🇫🇷 Français": {"source": "fr", "target": "fr", "tess": "fra"},
     "🇮🇹 Italiano": {"source": "it", "target": "it", "tess": "ita"},
