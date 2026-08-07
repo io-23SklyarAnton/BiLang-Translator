@@ -1,3 +1,4 @@
+import sys
 import threading
 import tkinter as tk
 from typing import Callable
@@ -38,16 +39,13 @@ class AreaSelector:
         self.canvas.bind("<ButtonPress-1>", self._on_press)
         self.canvas.bind("<B1-Motion>", self._on_drag)
         self.canvas.bind("<ButtonRelease-1>", self._on_release)
-
         self.top.bind("<Escape>", lambda e: self._close())
         self.top.focus_force()
 
     def _on_press(self, event):
         self.start_x = event.x
         self.start_y = event.y
-
         fill_color = self.transparent_color if self.has_transparent_color else "gray40"
-
         self.rect = self.canvas.create_rectangle(
             self.start_x, self.start_y, self.start_x, self.start_y,
             outline="#00FF00", width=2, fill=fill_color
@@ -58,7 +56,6 @@ class AreaSelector:
 
     def _on_release(self, event):
         end_x, end_y = event.x, event.y
-
         left = min(self.start_x, end_x)
         top = min(self.start_y, end_y)
         width = abs(end_x - self.start_x)
@@ -88,19 +85,22 @@ class UIOverlay:
 
         self._drag_x = 0
         self._drag_y = 0
+        self._resize_x = 0
+        self._resize_y = 0
+        self._start_width = 0
+        self._start_height = 0
 
         self._setup_window()
-
-        self.text_var = tk.StringVar(value="Waiting for subs...")
         self._setup_widgets()
 
         self.processor = processor_factory(self.update_text)
+        self.update_text("Waiting for subs...")
 
     def _setup_window(self):
         self.root.attributes('-topmost', True)
         self.root.attributes('-alpha', 0.8)
         self.root.overrideredirect(True)
-        self.root.geometry("+100+50")
+        self.root.geometry("600x150+100+50")
         self._force_top()
 
     def _get_lang_name_by_code(self, code: str) -> str:
@@ -133,20 +133,45 @@ class UIOverlay:
         widget.bind("<ButtonPress-1>", self._start_move)
         widget.bind("<B1-Motion>", self._on_motion)
 
+    def _start_resize(self, event):
+        self._resize_x = event.x_root
+        self._resize_y = event.y_root
+        self._start_width = self.root.winfo_width()
+        self._start_height = self.root.winfo_height()
+
+    def _on_resize_motion(self, event):
+        delta_x = event.x_root - self._resize_x
+        delta_y = event.y_root - self._resize_y
+        new_width = max(300, self._start_width + delta_x)
+        new_height = max(100, self._start_height + delta_y)
+        self.root.geometry(f"{new_width}x{new_height}")
+
     def _start_area_selection(self):
         self.processor.is_paused = True
-        self.text_var.set("Select area on screen...")
+        self.update_text("Select area on screen...")
         AreaSelector(self.root, self.config, self._on_area_selected)
 
     def _on_area_selected(self):
         self.processor.last_text = ""
-        self.text_var.set("Waiting for subs...")
+        self.update_text("Waiting for subs...")
         self.processor.is_paused = False
+
+    def _quit(self):
+        self.processor.stop()
+        self.root.destroy()
+        sys.exit(0)
 
     def _setup_widgets(self):
         control_frame = tk.Frame(self.root, bg="black", cursor="fleur")
-        control_frame.pack(fill="x", padx=15, pady=5)
+        control_frame.pack(fill="x", padx=5, pady=5)
         self._make_draggable(control_frame)
+
+        select_btn = tk.Button(
+            control_frame, text="✂", bg="black", fg="#00FF00", bd=0,
+            font=("Arial", 14), command=self._start_area_selection,
+            cursor="hand2", activebackground="#333333", activeforeground="#00FF00"
+        )
+        select_btn.pack(side="left", padx=(5, 10))
 
         self.source_var = tk.StringVar(value=self._get_lang_name_by_code(self.config.source_lang))
         self.target_var = tk.StringVar(value=self._get_lang_name_by_code(self.config.target_lang))
@@ -164,13 +189,6 @@ class UIOverlay:
             )
             menu["menu"].config(bg="black", fg="#00FF00", font=("Arial", 12))
 
-        select_btn = tk.Button(
-            control_frame, text="✂", bg="black", fg="#00FF00", bd=0,
-            font=("Arial", 14), command=self._start_area_selection,
-            cursor="hand2", activebackground="#333333", activeforeground="#00FF00"
-        )
-        select_btn.pack(side="left", padx=(0, 10))
-
         source_menu.pack(side="left")
 
         arrow_label = tk.Label(control_frame, text=" ➔ ", bg="black", fg="#00FF00", font=("Arial", 12, "bold"))
@@ -179,12 +197,24 @@ class UIOverlay:
 
         target_menu.pack(side="left")
 
-        text_label = tk.Label(
-            self.root, textvariable=self.text_var, fg="#00FF00", bg="black",
-            font=("Arial", 20, "bold"), justify="left", padx=15, pady=10, cursor="fleur"
+        exit_btn = tk.Button(
+            control_frame, text="✖", bg="black", fg="red", bd=0,
+            font=("Arial", 14), command=self._quit,
+            cursor="hand2", activebackground="#333333", activeforeground="red"
         )
-        text_label.pack(anchor="w")
-        self._make_draggable(text_label)
+        exit_btn.pack(side="right", padx=(10, 5))
+
+        self.text_widget = tk.Text(
+            self.root, fg="#00FF00", bg="black", font=("Arial", 20, "bold"),
+            padx=15, pady=10, bd=0, highlightthickness=0, wrap="word"
+        )
+        self.text_widget.pack(fill="both", expand=True)
+
+        self.grip = tk.Label(self.root, text="⇲", bg="black", fg="#00FF00", font=("Arial", 14),
+                             cursor="bottom_right_corner")
+        self.grip.place(relx=1.0, rely=1.0, anchor="se")
+        self.grip.bind("<ButtonPress-1>", self._start_resize)
+        self.grip.bind("<B1-Motion>", self._on_resize_motion)
 
     def _force_top(self):
         self.root.lift()
@@ -192,7 +222,13 @@ class UIOverlay:
         self.root.after(250, self._force_top)
 
     def update_text(self, text: str):
-        self.text_var.set(text)
+        self.root.after(0, self._safe_update_text, text)
+
+    def _safe_update_text(self, text: str):
+        self.text_widget.config(state="normal")
+        self.text_widget.delete("1.0", tk.END)
+        self.text_widget.insert(tk.END, text)
+        self.text_widget.config(state="disabled")
 
     def run(self):
         thread = threading.Thread(target=self.processor.start, daemon=True)
