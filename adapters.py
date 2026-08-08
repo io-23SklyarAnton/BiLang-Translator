@@ -10,10 +10,27 @@ from config import AppConfig
 
 logger = logging.getLogger(__name__)
 
-if sys.platform == "win32":
-    default_tess_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    if os.path.exists(default_tess_path):
-        pytesseract.pytesseract.tesseract_cmd = default_tess_path
+
+def _get_tesseract_path():
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    if sys.platform == "win32":
+        return os.path.join(base_path, "Tesseract-OCR", "tesseract.exe")
+    elif sys.platform == "darwin":
+        return os.path.join(base_path, "Tesseract-mac", "tesseract")
+    elif sys.platform.startswith("linux"):
+        return os.path.join(base_path, "Tesseract-linux", "tesseract")
+    return "tesseract"
+
+
+tess_path = _get_tesseract_path()
+if os.path.exists(tess_path):
+    pytesseract.pytesseract.tesseract_cmd = tess_path
+    tessdata_prefix = os.path.join(os.path.dirname(tess_path), "tessdata")
+    os.environ["TESSDATA_PREFIX"] = tessdata_prefix
 
 
 class ScreenCapturer:
