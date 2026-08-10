@@ -111,7 +111,6 @@ class UIOverlay:
         self.root.configure(bg=self.bg_main)
         self.root.grid_rowconfigure(1, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
-        self._force_top()
 
     def _get_lang_name_by_code(self, code: str) -> str:
         for name, data in LANGUAGES.items():
@@ -237,7 +236,8 @@ class UIOverlay:
         resize_cursor = "size_nw_se" if sys.platform == "win32" else "bottom_right_corner"
         self.grip = tk.Label(
             self.root,
-            text="⇲", bg=self.bg_main,
+            text="⇲",
+            bg=self.bg_main,
             fg=self.fg_accent,
             font=("Arial", 14),
             cursor=resize_cursor,
@@ -245,11 +245,6 @@ class UIOverlay:
         self.grip.place(relx=1.0, rely=1.0, anchor="se")
         self.grip.bind("<ButtonPress-1>", self._start_resize)
         self.grip.bind("<B1-Motion>", self._on_resize_motion)
-
-    def _force_top(self):
-        self.root.lift()
-        self.root.attributes('-topmost', True)
-        self.root.after(250, self._force_top)
 
     def update_text(self, text: str):
         self.root.after(0, self._safe_update_text, text)

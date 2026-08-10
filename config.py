@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 
 LANGUAGES = {
-    "🇬🇧 English": {"source": "en", "target": "en", "tess": "eng"},
-    "🇩🇪 Deutsch": {"source": "de", "target": "de", "tess": "deu"},
-    "🇺🇦 Українська": {"source": "uk", "target": "uk", "tess": "ukr"},
-    "🏴 Русский": {"source": "ru", "target": "ru", "tess": "rus"},
-    "🇪🇸 Español": {"source": "es", "target": "es", "tess": "spa"},
-    "🇫🇷 Français": {"source": "fr", "target": "fr", "tess": "fra"},
-    "🇮🇹 Italiano": {"source": "it", "target": "it", "tess": "ita"},
-    "🇨🇳 中文": {"source": "zh-CN", "target": "zh-CN", "tess": "chi_sim"},
-    "🇯🇵 日本語": {"source": "ja", "target": "ja", "tess": "jpn"},
-    "🇵🇹 Português": {"source": "pt", "target": "pt", "tess": "por"}
+    "[EN] English": {"source": "en", "target": "en", "tess": "eng"},
+    "[DE] Deutsch": {"source": "de", "target": "de", "tess": "deu"},
+    "[UA] Українська": {"source": "uk", "target": "uk", "tess": "ukr"},
+    "[RU] Русский": {"source": "ru", "target": "ru", "tess": "rus"},
+    "[ES] Español": {"source": "es", "target": "es", "tess": "spa"},
+    "[FR] Français": {"source": "fr", "target": "fr", "tess": "fra"},
+    "[IT] Italiano": {"source": "it", "target": "it", "tess": "ita"},
+    "[CN] 中文": {"source": "zh-CN", "target": "zh-CN", "tess": "chi_sim"},
+    "[JP] 日本語": {"source": "ja", "target": "ja", "tess": "jpn"},
+    "[PT] Português": {"source": "pt", "target": "pt", "tess": "por"}
 }
 
 @dataclass

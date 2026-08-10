@@ -8,6 +8,7 @@ __pycache__/
 # C extensions
 *.so
 Tesseract-mac
+Tesseract-OCR
 # Distribution / packaging
 .Python
 build/
