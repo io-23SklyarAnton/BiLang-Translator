@@ -6,7 +6,7 @@ import numpy as np
 import pytesseract
 import requests
 import logging
-from config import AppConfig
+from config import AppConfig, CURRENT_SYSTEM
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +17,11 @@ def _get_tesseract_path():
     else:
         base_path = os.path.dirname(os.path.abspath(__file__))
 
-    if sys.platform == "win32":
+    if CURRENT_SYSTEM.is_windows():
         return os.path.join(base_path, "Tesseract-OCR", "tesseract.exe")
-    elif sys.platform == "darwin":
+    elif CURRENT_SYSTEM.is_macos():
         return os.path.join(base_path, "Tesseract-mac", "tesseract")
-    elif sys.platform.startswith("linux"):
-        return os.path.join(base_path, "Tesseract-linux", "tesseract")
+
     return "tesseract"
 
 

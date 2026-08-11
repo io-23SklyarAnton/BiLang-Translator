@@ -3,7 +3,7 @@ import threading
 import tkinter as tk
 from typing import Callable
 from processor import SubtitleProcessor
-from config import AppConfig, LANGUAGES
+from config import AppConfig, LANGUAGES, CURRENT_SYSTEM
 
 
 class AreaSelector:
@@ -41,6 +41,18 @@ class AreaSelector:
         self.canvas.bind("<ButtonRelease-1>", self._on_release)
         self.top.bind("<Escape>", lambda e: self._close())
         self.top.focus_force()
+        self._force_top()
+
+    def _force_top(self):
+        if CURRENT_SYSTEM.is_macos():
+            self.top.attributes('-topmost', False)
+            self.top.attributes('-topmost', True)
+            self.top.lift()
+            self._top_loop = self.top.after(100, self._force_top)
+        else:
+            self.top.lift()
+            self.top.attributes('-topmost', True)
+            self._top_loop = self.top.after(250, self._force_top)
 
     def _on_press(self, event):
         self.start_x = event.x
@@ -70,6 +82,8 @@ class AreaSelector:
         self._close()
 
     def _close(self):
+        if hasattr(self, '_top_loop'):
+            self.top.after_cancel(self._top_loop)
         self.on_complete()
         self.top.destroy()
 
@@ -111,6 +125,7 @@ class UIOverlay:
         self.root.configure(bg=self.bg_main)
         self.root.grid_rowconfigure(1, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
+        self._force_top()
 
     def _get_lang_name_by_code(self, code: str) -> str:
         for name, data in LANGUAGES.items():
@@ -233,18 +248,29 @@ class UIOverlay:
         )
         self.text_widget.grid(row=1, column=0, sticky="nsew")
 
-        resize_cursor = "size_nw_se" if sys.platform == "win32" else "bottom_right_corner"
+        resize_cursor = "size_nw_se" if CURRENT_SYSTEM.is_windows() else "bottom_right_corner"
         self.grip = tk.Label(
             self.root,
             text="⇲",
             bg=self.bg_main,
             fg=self.fg_accent,
             font=("Arial", 14),
-            cursor=resize_cursor,
+            cursor=resize_cursor
         )
         self.grip.place(relx=1.0, rely=1.0, anchor="se")
         self.grip.bind("<ButtonPress-1>", self._start_resize)
         self.grip.bind("<B1-Motion>", self._on_resize_motion)
+
+    def _force_top(self):
+        if CURRENT_SYSTEM.is_macos():
+            self.root.attributes('-topmost', False)
+            self.root.attributes('-topmost', True)
+            self.root.lift()
+            self.root.after(100, self._force_top)
+        else:
+            self.root.lift()
+            self.root.attributes('-topmost', True)
+            self.root.after(250, self._force_top)
 
     def update_text(self, text: str):
         self.root.after(0, self._safe_update_text, text)

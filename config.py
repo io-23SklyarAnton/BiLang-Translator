@@ -1,4 +1,6 @@
+import enum
 from dataclasses import dataclass
+import sys
 
 LANGUAGES = {
     "[EN] English": {"source": "en", "target": "en", "tess": "eng"},
@@ -12,6 +14,7 @@ LANGUAGES = {
     "[JP] 日本語": {"source": "ja", "target": "ja", "tess": "jpn"},
     "[PT] Português": {"source": "pt", "target": "pt", "tess": "por"}
 }
+
 
 @dataclass
 class AppConfig:
@@ -31,3 +34,22 @@ class AppConfig:
             "width": self.monitor_width,
             "height": self.monitor_height
         }
+
+
+class System(enum.Enum):
+    WINDOWS = "Windows"
+    MACOS = "macOS"
+
+    def is_windows(self) -> bool:
+        return self == System.WINDOWS
+
+    def is_macos(self) -> bool:
+        return self == System.MACOS
+
+
+if sys.platform == "win32":
+    CURRENT_SYSTEM = System.WINDOWS
+elif sys.platform == "darwin":
+    CURRENT_SYSTEM = System.MACOS
+else:
+    raise RuntimeError(f"Unsupported system: {sys.platform}")
