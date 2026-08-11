@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=str, default="de")
-    parser.add_argument("--target", type=str, default="ru")
+    parser.add_argument("--target", type=str, default="uk")
     parser.add_argument("--tess-lang", type=str, default="deu")
 
     args = parser.parse_args()
