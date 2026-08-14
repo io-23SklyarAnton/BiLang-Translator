@@ -52,7 +52,6 @@ class AreaSelector:
         else:
             self.top.lift()
             self.top.attributes('-topmost', True)
-            self._top_loop = self.top.after(250, self._force_top)
 
     def _on_press(self, event):
         self.start_x = event.x
@@ -270,7 +269,6 @@ class UIOverlay:
         else:
             self.root.lift()
             self.root.attributes('-topmost', True)
-            self.root.after(250, self._force_top)
 
     def update_text(self, text: str):
         self.root.after(0, self._safe_update_text, text)
