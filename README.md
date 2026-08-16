@@ -39,7 +39,7 @@ cd $(brew --prefix tesseract)/share/tessdata && curl -LO "https://raw.githubuser
 3. Clone this repository and navigate to the project folder.
 
 ```bash
-git clone https://github.com/io-23SklyarAnton/BiLang-Translator.git
+git clone https://github.com/io-23SklyarAnton/ScreenTranslator.git
 ```
 
 4. Create a virtual environment, activate it, and install dependencies:
