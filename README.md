@@ -1,56 +1,95 @@
-**Real-Time Subtitle Translator**
+<p align="center">
+  <img src="assets/demo.gif" alt="App Demo" width="650">
+</p>
 
-A lightweight, real-time screen translation overlay.
+<h1 align="center">Real-Time Subtitle Translator</h1>
 
-**Windows**
+<p align="center">
+  <b>A lightweight, real-time screen translation overlay. Select the text on your screen and get instant translations without complex setups or API keys.</b>
+</p>
+
+---
+
+## Installation & Running
+
+### Windows
 
 For Windows users, a standalone executable is available.
 
 1. Download the latest `.exe` from the **Releases** page.
 2. Double-click to run. No installation or external dependencies are required.
 
-**macOS**
+### macOS
 
-Due to Gatekeeper security restrictions and system library dependencies, it is recommended to run the application from the source code.
+*Requires Python >= 3.12.*
 
-1. Install Tesseract and language packages via Homebrew:
+1. Install Tesseract (English included) and Tkinter support for Python via Homebrew:
 
 ```bash
-brew install tesseract tesseract-lang
+brew install tesseract python-tk@3.12
 
 ```
 
-2. Clone this repository and navigate to the project folder.
-3. Install the required Python dependencies:
+2. Download the fast models for the remaining 9 languages directly into the Tesseract directory:
 
 ```bash
+cd $(brew --prefix tesseract)/share/tessdata && curl -LO "[https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/](https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/){deu,rus,ukr,spa,fra,ita,chi_sim,jpn,por}.traineddata"
+
+```
+
+3. Clone this repository and navigate to the project folder.
+
+```bash
+git clone https://github.com/io-23SklyarAnton/BiLang-Translator.git
+```
+
+4. Create a virtual environment, activate it, and install dependencies:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
 ```
 
-4. Run the application:
+5. Run the application:
 
 ```bash
 python main.py
 
 ```
 
-**Linux**
+#### Fullscreen Video Workaround (macOS)
 
-Linux users should run the application directly from the source.
+The native macOS fullscreen mode automatically hides all custom overlay applications. To translate fullscreen videos (
+e.g., on YouTube), it is recommended to install the **[Windowed - floating Youtube/every website](https://chromewebstore.google.com/detail/windowed-floating-youtube/gibipneadnbflmkebnmcbgjdkngkbklb)** browser extension.
 
-1. Install Tesseract and language packages (Debian/Ubuntu example):
+Use the specific "Windowed" button highlighted in the image below.
+
+![Windowed Button](assets/windowed_button.png)
+
+This expands the video to fill the browser window
+without triggering the native macOS fullscreen, keeping the translator visible.
+
+### Linux
+
+*Requires Python >= 3.12.*
+
+1. Install Tesseract, the exactly required 10 language packages, and standard Python libraries (Tkinter and venv) for
+   Debian/Ubuntu:
 
 ```bash
 sudo apt update
-sudo apt install tesseract-ocr tesseract-ocr-all
+sudo apt install python3-tk python3-venv tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu tesseract-ocr-rus tesseract-ocr-ukr tesseract-ocr-spa tesseract-ocr-fra tesseract-ocr-ita tesseract-ocr-chi-sim tesseract-ocr-jpn tesseract-ocr-por
 
 ```
 
 2. Clone this repository and navigate to the project folder.
-3. Install the required Python dependencies:
+3. Create a virtual environment, activate it, and install dependencies:
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
 ```
@@ -61,10 +100,3 @@ pip install -r requirements.txt
 python main.py
 
 ```
-
-**How to Use**
-
-* **Select Area:** Click the scissors icon and drag to select the region of the screen containing the text.
-* **Select Languages:** Use the dropdown menus to set the source text language and the target translation language.
-* **Move and Resize:** Drag the control bar to move the window. Drag the bottom-right corner to resize it.
-* **Exit:** Click the 'X' button to close the application.
