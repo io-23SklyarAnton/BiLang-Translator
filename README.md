@@ -33,8 +33,7 @@ brew install tesseract python-tk@3.12
 2. Download the fast models for the remaining 9 languages directly into the Tesseract directory:
 
 ```bash
-cd $(brew --prefix tesseract)/share/tessdata && curl -LO "[https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/](https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/){deu,rus,ukr,spa,fra,ita,chi_sim,jpn,por}.traineddata"
-
+cd $(brew --prefix tesseract)/share/tessdata && curl -LO "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/{deu,rus,ukr,spa,fra,ita,chi_sim,jpn,por}.traineddata"
 ```
 
 3. Clone this repository and navigate to the project folder.
