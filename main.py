@@ -1,13 +1,10 @@
 import argparse
-import logging
 from typing import Callable
 
 from config import AppConfig
 from adapters import ScreenCapturer, TextExtractor, GoogleTranslator
 from processor import SubtitleProcessor
 from ui import UIOverlay
-
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 
 def main():

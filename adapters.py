@@ -5,10 +5,7 @@ import mss
 import numpy as np
 import pytesseract
 import requests
-import logging
 from config import AppConfig, CURRENT_SYSTEM
-
-logger = logging.getLogger(__name__)
 
 
 def _get_tesseract_path():
@@ -74,6 +71,5 @@ class GoogleTranslator:
         try:
             res = requests.get(self.API_URL, params=params, timeout=5).json()
             return "".join([x[0] for x in res[0]])
-        except Exception as e:
-            logger.error(f"Translation error: {e}")
+        except Exception:
             return "Translation error"
